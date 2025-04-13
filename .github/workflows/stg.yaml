@@ -26,6 +26,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     # Set up Google Cloud authentication
     - uses: 'google-github-actions/auth@v2'
@@ -46,8 +48,9 @@ jobs:
     - name: Check modified files and deploy
       run: |
         # Get the list of modified k8s.yaml files in the pull request
-        changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-
+        changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.pull_request.merge_commit_sha }})
+        echo "Changed files:"
+        echo "$changed_files"
         # Loop through each modified file
         for file in $changed_files; do
           # Check if the file path matches the pattern "stg/{service}/k8s.yaml"
