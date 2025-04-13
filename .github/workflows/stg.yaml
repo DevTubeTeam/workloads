@@ -52,6 +52,7 @@ jobs:
         echo "Changed files:"
         echo "$changed_files"
         # Loop through each modified file
+        no_deploy=true
         for file in $changed_files; do
           # Check if the file path matches the pattern "stg/{service}/k8s.yaml"
           if [[ $file == stg/*/k8s.yaml ]]; then
@@ -64,5 +65,10 @@ jobs:
 
             # Rollout status for the specific service
             kubectl rollout status deployment/${service_name}-deployment
+            no_deploy=false
           fi
         done
+
+        if $no_deploy; then
+          echo "No k8s.yaml changes detected. Nothing deployed."
+        fi
