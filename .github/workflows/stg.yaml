@@ -12,7 +12,6 @@ env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: devtube-cluster
   GKE_ZONE: asia-southeast1
-  IMAGE: static-site
 
 jobs:
   setup-build-publish-deploy:
@@ -25,18 +24,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    # Setup gcloud CLI
-    - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+    # Set up Google Cloud authentication
+    - uses: 'google-github-actions/auth@v2'
+      name: 'Authenticate to Google Cloud'
       with:
-        service_account_key: ${{ secrets.GKE_SA_KEY }}
         project_id: ${{ secrets.GKE_PROJECT }}
+        workload_identity_provider: projects/281987613876/locations/global/workloadIdentityPools/github/providers/my-github-repo-provider
 
     # Get the GKE credentials so we can deploy to the cluster
     - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+      name: Get GKE credentials
       with:
         cluster_name: ${{ env.GKE_CLUSTER }}
         location: ${{ env.GKE_ZONE }}
-        credentials: ${{ secrets.GKE_SA_KEY }}
 
     # Check for changes in k8s.yaml files and deploy the corresponding service dynamically
     - name: Check modified files and deploy
