@@ -48,7 +48,7 @@ jobs:
     - name: Check modified files and deploy
       run: |
         # Get the list of modified k8s.yaml files in the pull request
-        changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.pull_request.merge_commit_sha }})
+        changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.merge_commit_sha }})
         echo "Changed files:"
         echo "$changed_files"
         # Loop through each modified file
