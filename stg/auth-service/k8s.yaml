@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: auth-service-container
-        image: public.ecr.aws/s0p6q3j7/auth-service:0.0.1-beta-2
+        image: public.ecr.aws/s0p6q3j7/auth-service:0.0.1-beta-1
         ports:
         - containerPort: 3000
