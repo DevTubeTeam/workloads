@@ -33,6 +33,7 @@ jobs:
       with:
         project_id: ${{ secrets.GKE_PROJECT }}
         workload_identity_provider: projects/281987613876/locations/global/workloadIdentityPools/github/providers/my-github-repo-provider
+        service_account: cicd-deployer@devtube-456704.iam.gserviceaccount.com
 
     # Get the GKE credentials so we can deploy to the cluster
     - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
