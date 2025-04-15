@@ -1,0 +1,35 @@
+# This file is part of the Auth Service project.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upload-service-deployment
+  labels:
+    app: upload-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: upload-service
+  template:
+    metadata:
+      labels:
+        app: upload-service
+    spec:
+      containers:
+      - name: upload-service-container
+        image: public.ecr.aws/s0p6q3j7/upload-service:v0.0.1-beta-4-d8a534e
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DATABASE_URL
+          value: postgresql://postgres:password@postgres:5432/devtube
+        - name: RABBITMQ_QUEUE
+          value: upload_queue
+        - name: RABBITMQ_URL
+          value: amqp://user:password@rabbitmq:5672
+        - name: BUCKET_NAME
+          value: devtube-video
+        - name: REGION
+          value: ap-southeast-1
+        - name: ROLE_ARN
+          value: arn:aws:iam::564439693649:role/GoogleOIDC-S3Access
