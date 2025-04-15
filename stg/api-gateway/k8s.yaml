@@ -7,7 +7,7 @@ metadata:
   labels:
     app: api-gateway
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: api-gateway
@@ -18,6 +18,9 @@ spec:
     spec:
       containers:
       - name: api-gateway-container
-        image: public.ecr.aws/s0p6q3j7/api-gateway:0.0.1-beta-2
+        image: public.ecr.aws/s0p6q3j7/api-gateway:v0.0.1-beta-3-bc9dfa7
         ports:
         - containerPort: 8080
+        env:
+        - name: RABBITMQ_URL
+          value: amqp://user:password@rabbitmq:5672
