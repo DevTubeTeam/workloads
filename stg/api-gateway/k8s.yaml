@@ -1,5 +1,4 @@
 # This file is part of the API Gateway project.
-# Dump reload
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,3 +23,5 @@ spec:
         env:
         - name: RABBITMQ_URL
           value: amqp://user:password@rabbitmq:5672
+        - name: DUMMY_RELOAD
+          value: 1
