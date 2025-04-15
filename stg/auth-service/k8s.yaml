@@ -26,7 +26,7 @@ spec:
         - name: RABBITMQ_QUEUE
           value: auth_queue
         - name: RABBITMQ_URL
-          value: amqp://admin:password@rabbitmq:5672
+          value: amqp://user:password@rabbitmq:5672
         - name: GOOGLE_CLIENT_ID
           value: 176483374184-ver0sc6l2iguv2kbfklcqsqr5o34ensh.apps.googleusercontent.com
         - name: GOOGLE_SECRET
