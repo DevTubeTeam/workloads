@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: upload-service-container
-        image: public.ecr.aws/s0p6q3j7/upload-service:v0.0.1-beta-4-d8a534e
+        image: public.ecr.aws/s0p6q3j7/upload-service-v0.0.1-beta-5-3a2ef5c
         ports:
         - containerPort: 3000
         env:
