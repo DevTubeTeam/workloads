@@ -10,7 +10,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: devtube-cluster
+  GKE_CLUSTER: devtube
   GKE_ZONE: asia-southeast1
 
 jobs:
