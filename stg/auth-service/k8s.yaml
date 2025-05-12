@@ -44,4 +44,4 @@ spec:
         - name: JWT_REFRESH_EXPIRE_IN
           value: 7d
         - name: DUMMY_RELOAD
-          value: "1"
+          value: "2"
