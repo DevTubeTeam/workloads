@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: auth-service-container
-        image: public.ecr.aws/s0p6q3j7/auth-service-v0.0.1-beta-7-3a2ef5c
+        image: public.ecr.aws/s0p6q3j7/auth-service:v0.0.1-beta-7-3a2ef5c
         ports:
         - containerPort: 3000
         env:
@@ -44,4 +44,4 @@ spec:
         - name: JWT_REFRESH_EXPIRE_IN
           value: 7d
         - name: DUMMY_RELOAD
-          value: "2"
+          value: "3"
