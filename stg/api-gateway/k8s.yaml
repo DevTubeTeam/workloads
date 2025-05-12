@@ -24,4 +24,4 @@ spec:
         - name: RABBITMQ_URL
           value: amqp://user:password@rabbitmq:5672
         - name: DUMMY_RELOAD
-          value: "2"
+          value: "3"
