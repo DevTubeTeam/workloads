@@ -17,11 +17,6 @@ spec:
     spec:
       containers:
       - name: api-gateway-container
-        image: public.ecr.aws/s0p6q3j7/api-gateway:v0.0.1-beta-4-3a2ef5c
+        image: public.ecr.aws/s0p6q3j7/api-gateway:v0.0.2-beta-2-e61f743
         ports:
         - containerPort: 8080
-        env:
-        - name: RABBITMQ_URL
-          value: amqp://user:password@rabbitmq:5672
-        - name: DUMMY_RELOAD
-          value: "4"
