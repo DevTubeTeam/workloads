@@ -6,3 +6,4 @@ Deploy to eks
 4. kubectl apply -f new-dep.yaml
 5. kubectl get ingress -n devtube
 6. Get the ADDRESS of step 5 go to browser
+7. Add to value of namecheap site
