@@ -20,11 +20,20 @@ spec:
         app.kubernetes.io/name: api-gateway
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/api-gateway:v0.0.2-beta-2-e61f743
+      - image: public.ecr.aws/s0p6q3j7/api-gateway:v0.0.3-b09763c
         imagePullPolicy: Always
         name: api-gateway
         ports:
         - containerPort: 8080
+        env:
+          - name: POSTGRES_PASSWORD
+            value: password
+          - name: POSTGRES_USER
+            value: postgres
+          - name: POSTGRES_DB
+            value: devtube
+          - name: POSTGRES_HOST
+            value: postgres-service
 ---
 apiVersion: v1
 kind: Service
