@@ -32,7 +32,7 @@ spec:
             value: devtube-video
           - name: AWS_REGION
             value: ap-southeast-1
-          - name: ROLE_ARN
+          - name: AWS_ROLE_ARN
             value: arn:aws:iam::564439693649:role/GoogleOIDC-S3Access
           - name: MAX_FILE_SIZE
             value: '5242880'
@@ -45,9 +45,9 @@ spec:
           - name: PRESIGNED_URL_EXPIRY
             value: '3600'
           - name: AUTH_SERVICE_URL
-            value: http://auth-service:80
+            value: auth-service:80
           - name: VIDEO_SERVICE_URL
-            value: http://video-service:80
+            value: video-service:80
 
 ---
 apiVersion: v1

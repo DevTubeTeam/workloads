@@ -33,7 +33,7 @@ spec:
           - name: GOOGLE_CLIENT_SECRET
             value: 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
           - name: GOOGLE_REDIRECT_URL
-            value: http://localhost:3000
+            value: https://devtube-team.netlify.app
           - name: GRANT_TYPE
             value: authorization_code
           - name: JWT_ACCESS_SECRET
@@ -46,7 +46,12 @@ spec:
             value: 7d
           - name: AES_SECRET_KEY
             value: reaA83IxG8fMkKohU69cVioc
-
+          - name: AUTH_SERVICE_URL
+            value: auth-service:80
+          - name: VIDEO_SERVICE_URL
+            value: video-service:80
+          - name: NODE_ENV
+            value: production
 ---
 apiVersion: v1
 kind: Service
