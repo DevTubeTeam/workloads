@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/name: auth-service
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/auth-service:v0.0.4-76ad641
+      - image: public.ecr.aws/s0p6q3j7/auth-service:v0.0.5-4305229
         imagePullPolicy: Always
         name: auth-service
         ports:
