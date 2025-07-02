@@ -99,6 +99,11 @@ kubectl get services -n devtube
 kubectl describe ingress ingress-api-gateway -n devtube
 ```
 
+### Metrics Server
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
 ## Quản lý
 
 ### Scale ứng dụng
