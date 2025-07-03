@@ -13,7 +13,7 @@ spec:
         app.kubernetes.io/name: api-gateway
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/api-gateway:v1.0.1-01a3900
+      - image: public.ecr.aws/s0p6q3j7/api-gateway:v1.0.4-a4009f8
         imagePullPolicy: Always
         name: api-gateway
         ports:
