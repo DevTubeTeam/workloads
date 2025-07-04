@@ -1,7 +1,7 @@
 # DevTube - AWS EKS Deployment
 
 ## Tổng quan
-DevTube là một ứng dụng microservices được triển khai trên Amazon EKS (Elastic Kubernetes Service) với kiến trúc API Gateway và các dịch vụ backend.
+DevTube là một ứng dụng microservices được triển khai trên Amazon EKS (Elastic Kubernetes Service) với kiến trúc API Gateway và các dịch vụ backend. Hệ thống sử dụng Terraform để tự động hóa việc triển khai infrastructure.
 
 ## Kiến trúc hệ thống
 
@@ -14,23 +14,34 @@ Internet → ALB Ingress → API Gateway Service → API Gateway Pod
 ## Cấu trúc thư mục
 ```
 workloads/
-├── cluster-config.yaml    # Cấu hình EKS cluster
-├── ingressClass.yaml      # Cấu hình ALB Ingress Controller
-├── new-dep.yaml          # Deployment chính cho production
-└── stg/                  # Staging environment
-    ├── api-gateway/      # API Gateway staging configs
-    ├── auth-service/     # Authentication service configs
-    └── upload-service/   # Upload service configs
+├── tf/                   # Terraform infrastructure code
+│   ├── 0-locals.tf      # Local variables
+│   ├── 1-providers.tf   # Provider configurations
+│   ├── 2-vpc.tf         # VPC and networking
+│   ├── 7-eks.tf         # EKS cluster
+│   ├── 8-nodes.tf       # Node groups
+│   ├── 15-aws-lbc.tf    # AWS Load Balancer Controller
+│   └── 12-metrics-server.tf # Metrics server
+├── cluster-config.yaml   # EKS cluster config (legacy)
+├── ingressClass.yaml    # ALB Ingress Controller config
+├── new-dep.yaml         # Production deployment
+└── stg/                 # Staging environment
+    ├── api-gateway/     # API Gateway staging configs
+    ├── auth-service/    # Authentication service configs
+    └── upload-service/  # Upload service configs
 ```
 
-## Cấu hình chi tiết
+## Infrastructure Configuration
 
-### 1. EKS Cluster (cluster-config.yaml)
-- **Tên cluster**: devtube
+### Terraform Variables (locals)
+- **Environment**: prod
 - **Region**: ap-southeast-1 (Singapore)
-- **Mode**: Auto Mode (quản lý tự động)
+- **EKS Cluster**: devtube
+- **EKS Version**: 1.32
+- **Node Instance Type**: t3.large
+- **Scaling Config**: Min: 0, Max: 10, Desired: 1
 
-### 2. Production Deployment (new-dep.yaml)
+### Production Deployment
 #### API Gateway
 - **Image**: `public.ecr.aws/s0p6q3j7/api-gateway:v0.0.2-beta-2-e61f743`
 - **Port**: 8080 (container) → 80 (service)
@@ -42,119 +53,137 @@ workloads/
 - **Redirect**: HTTP → HTTPS
 - **Ports**: 80 (HTTP), 443 (HTTPS)
 
-## Hướng dẫn triển khai
+## Triển khai Infrastructure
 
 ### Yêu cầu tiên quyết
-- AWS CLI đã được cấu hình
+- AWS CLI đã được cấu hình với appropriate permissions
+- Terraform >= 1.0
 - kubectl
-- eksctl
-- Quyền truy cập AWS với các permissions cần thiết
+- Helm (được cài đặt tự động thông qua Terraform)
 
-### Bước 1: Tạo EKS Cluster
+### Bước 1: Deploy Infrastructure với Terraform
 ```bash
-eksctl create cluster -f cluster-config.yaml
-```
-**Thời gian**: ~15-20 phút
-
-### Bước 2: Cài đặt ALB Ingress Controller
-```bash
-kubectl apply -f ingressClass.yaml
+cd tf/
+terraform init
+terraform plan
+terraform apply
 ```
 
-### Bước 3: Tạo Namespace
+**Thời gian**: ~20-25 phút
+
+**Terraform sẽ tạo:**
+- VPC và networking components
+- EKS cluster với node groups
+- AWS Load Balancer Controller
+- Metrics Server
+- Cluster Autoscaler
+- Tất cả IAM roles và policies cần thiết
+
+### Bước 2: Cấu hình kubectl
 ```bash
-kubectl create namespace devtube --save-config
+aws eks update-kubeconfig --region ap-southeast-1 --name prod-devtube
 ```
 
-### Bước 4: Deploy ứng dụng
+### Bước 3: Verify Deployment
 ```bash
-kubectl apply -f new-dep.yaml
+# Kiểm tra pods
+kubectl get pods
+
+# Kiểm tra services
+kubectl get services 
+
+# Kiểm tra ingress
+kubectl get ingress
 ```
 
-### Bước 5: Kiểm tra Ingress
+## Quản lý Ứng dụng
+
+### Kiểm tra trạng thái
 ```bash
-kubectl get ingress -n devtube
+# Pods
+kubectl get pods
+kubectl logs -f deployment/api-gateway-deployment
+
+# Services
+kubectl get services 
+
+# Ingress
+kubectl describe ingress ingress-api-gateway
 ```
-
-### Bước 6: Cấu hình DNS
-1. Lấy địa chỉ ALB từ output của bước 5
-2. Truy cập địa chỉ này qua trình duyệt để kiểm tra
-3. Cập nhật DNS record tại Namecheap với địa chỉ ALB
-
-## Kiểm tra trạng thái
-
-### Pods
-```bash
-kubectl get pods -n devtube
-kubectl logs -f deployment/api-gateway-deployment -n devtube
-```
-
-### Services
-```bash
-kubectl get services -n devtube
-```
-
-### Ingress
-```bash
-kubectl describe ingress ingress-api-gateway -n devtube
-```
-
-### Metrics Server
-```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
-
-## Quản lý
 
 ### Scale ứng dụng
 ```bash
-kubectl scale deployment api-gateway-deployment --replicas=3 -n devtube
+kubectl scale deployment api-gateway-deployment --replicas=3 
 ```
 
 ### Update image
 ```bash
-kubectl set image deployment/api-gateway-deployment api-gateway=public.ecr.aws/s0p6q3j7/api-gateway:NEW_TAG -n devtube
+kubectl set image deployment/api-gateway-deployment api-gateway=public.ecr.aws/s0p6q3j7/api-gateway:NEW_TAG 
 ```
 
 ### Xem logs
 ```bash
-kubectl logs -f deployment/api-gateway-deployment -n devtube
+kubectl logs -f deployment/api-gateway-deployment 
 ```
 
 ## Staging Environment
-Thư mục `stg/` chứa các cấu hình cho môi trường staging với:
+Thư mục `stg/` chứa các cấu hình cho môi trường staging:
 - API Gateway configurations
 - Authentication service
 - Upload service
 
-## Xử lý sự cố
+Deploy staging services:
+```bash
+kubectl apply -f stg/api-gateway/k8s.yaml
+kubectl apply -f stg/auth-service/k8s.yaml
+kubectl apply -f stg/video-service/k8s.yaml
+```
+
+## Monitoring và Troubleshooting
+
+### Kiểm tra cluster health
+```bash
+kubectl cluster-info
+kubectl get nodes
+kubectl top nodes
+kubectl top pods 
+```
 
 ### Pod không start
 ```bash
-kubectl describe pod <pod-name> -n devtube
-kubectl logs <pod-name> -n devtube
+kubectl describe pod <pod-name> 
+kubectl logs <pod-name> 
 ```
 
 ### Ingress không hoạt động
 ```bash
-kubectl describe ingress ingress-api-gateway -n devtube
-# Kiểm tra ALB Controller logs
+kubectl describe ingress ingress-api-gateway 
 kubectl logs -n kube-system deployment.apps/aws-load-balancer-controller
 ```
 
 ### SSL Certificate issues
-- Đảm bảo certificate ARN đúng
-- Kiểm tra certificate status trong AWS ACM
-- Verify domain ownership
+- Kiểm tra certificate ARN trong configuration
+- Verify certificate status trong AWS ACM console
+- Confirm domain ownership
 
 ## Cleanup
+
+### Xóa Applications
 ```bash
-kubectl delete -f new-dep.yaml
-kubectl delete namespace devtube
-eksctl delete cluster devtube
+kubectl delete -f <all `k8s.yaml`>
+kubectl delete -f ingressClass.yaml
 ```
 
-## Liên hệ & Hỗ trợ
-- Repository: [GitHub Repository URL]
-- Issues: [GitHub Issues URL]
-- Documentation: [Documentation URL]
+### Xóa Infrastructure
+```bash
+cd tf/
+terraform destroy
+```
+
+**Lưu ý**: Terraform destroy sẽ xóa toàn bộ infrastructure, bao gồm VPC, EKS cluster, và tất cả tài nguyên liên quan.
+
+## Tài liệu tham khảo
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Kiến trúc hệ thống chi tiết
+- [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) - Hướng dẫn triển khai chi tiết
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+- [AWS EKS Documentation](https://docs.aws.amazon.com/eks/)
