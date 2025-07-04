@@ -1,13 +1,6 @@
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: devtube
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: devtube
   name: api-gateway-deployment
 spec:
   selector:
@@ -20,7 +13,7 @@ spec:
         app.kubernetes.io/name: api-gateway
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/api-gateway:v0.0.5-4305229
+      - image: public.ecr.aws/s0p6q3j7/api-gateway:v1.0.4-a4009f8
         imagePullPolicy: Always
         name: api-gateway
         ports:
@@ -63,14 +56,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: devtube
   name: api-gateway-service
 spec:
   ports:
     - port: 80
       targetPort: 8080
       protocol: TCP
-  type: NodePort
+  type: ClusterIP
   selector:
     app.kubernetes.io/name: api-gateway
 
@@ -78,7 +70,6 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  namespace: devtube
   name: api-gateway-hpa
 spec:
   scaleTargetRef:
