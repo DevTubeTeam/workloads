@@ -70,7 +70,7 @@ spec:
     - port: 80
       targetPort: 5001
       protocol: TCP
-  type: NodePort
+  type: ClusterIP
   selector:
     app.kubernetes.io/name: auth-service
 

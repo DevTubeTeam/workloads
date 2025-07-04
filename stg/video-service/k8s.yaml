@@ -59,7 +59,7 @@ spec:
     - port: 80
       targetPort: 5002
       protocol: TCP
-  type: NodePort
+  type: ClusterIP
   selector:
     app.kubernetes.io/name: video-service
 
