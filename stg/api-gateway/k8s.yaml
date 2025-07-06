@@ -27,7 +27,7 @@ spec:
             memory: 512Mi
         env:
           - name: DATABASE_URL
-            value: postgres://postgres:Mayhabuoi123@database-1.cdqce6siqwx7.ap-southeast-1.rds.amazonaws.com:5432/devtube
+            value: postgres://postgres:Mayhabuoi123@database-1.cdqce6siqwx7.ap-southeast-1.rds.amazonaws.com:5432/devtube?pool_timeout=0
           - name: GOOGLE_CLIENT_ID
             value: 176483374184-ver0sc6l2iguv2kbfklcqsqr5o34ensh.apps.googleusercontent.com
           - name: GOOGLE_CLIENT_SECRET

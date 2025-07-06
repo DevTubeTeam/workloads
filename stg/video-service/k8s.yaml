@@ -13,7 +13,7 @@ spec:
         app.kubernetes.io/name: video-service
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/video-service:v1.0.6-a4009f8
+      - image: public.ecr.aws/s0p6q3j7/video-service:v1.0.7-58f38c8
         imagePullPolicy: Always
         name: video-service
         ports:
@@ -27,7 +27,7 @@ spec:
             memory: 512Mi
         env:
           - name: DATABASE_URL
-            value: postgres://postgres:Mayhabuoi123@database-1.cdqce6siqwx7.ap-southeast-1.rds.amazonaws.com:5432/devtube
+            value: postgres://postgres:Mayhabuoi123@database-1.cdqce6siqwx7.ap-southeast-1.rds.amazonaws.com:5432/devtube?pool_timeout=0
           - name: AWS_BUCKET_NAME
             value: devtube-video
           - name: AWS_REGION
