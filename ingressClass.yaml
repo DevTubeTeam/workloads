@@ -34,4 +34,3 @@ spec:
               name: api-gateway-service
               port:
                 number: 80
-        
