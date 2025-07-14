@@ -13,11 +13,13 @@ spec:
         app.kubernetes.io/name: video-service
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/video-service:v1.0.7-58f38c8
+      - image: public.ecr.aws/s0p6q3j7/video-service:v1.0.12-960656d
         imagePullPolicy: Always
         name: video-service
         ports:
         - containerPort: 5002
+        - containerPort: 5020
+          name: metrics
         resources:
           requests:
             cpu: 150m
@@ -48,17 +50,28 @@ spec:
             value: auth-service:80
           - name: VIDEO_SERVICE_URL
             value: video-service:80
+          - name: NODE_ENV
+            value: production
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: video-service
+  annotations:
+    prometheus/scrape: "true"
+    prometheus/path: "/metrics"
+    prometheus/port: "5020"
 spec:
   ports:
     - port: 80
       targetPort: 5002
       protocol: TCP
+      name: http
+    - port: 5020
+      targetPort: 5020
+      protocol: TCP
+      name: metrics
   type: ClusterIP
   selector:
     app.kubernetes.io/name: video-service
@@ -87,7 +100,7 @@ spec:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 80
+        averageUtilization: 70
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 10
@@ -99,6 +112,6 @@ spec:
       stabilizationWindowSeconds: 10
       policies:
       - type: Pods
-        value: 2
+        value: 10
         periodSeconds: 10
       selectPolicy: Max

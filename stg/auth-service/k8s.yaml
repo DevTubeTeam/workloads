@@ -13,11 +13,13 @@ spec:
         app.kubernetes.io/name: auth-service
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/auth-service:v1.0.5-a4009f8
+      - image: public.ecr.aws/s0p6q3j7/auth-service:v1.0.10-960656d
         imagePullPolicy: Always
         name: auth-service
         ports:
         - containerPort: 5001
+        - containerPort: 5010
+          name: metrics
         resources:
           requests:
             cpu: 75m
@@ -65,11 +67,20 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
+  annotations:
+    prometheus/scrape: "true"
+    prometheus/path: "/metrics"
+    prometheus/port: "5010"
 spec:
   ports:
     - port: 80
       targetPort: 5001
       protocol: TCP
+      name: http
+    - port: 5010
+      targetPort: 5010
+      protocol: TCP
+      name: metrics
   type: ClusterIP
   selector:
     app.kubernetes.io/name: auth-service

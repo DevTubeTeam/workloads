@@ -1,0 +1,22 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: managed-cert
+spec:
+  domains:
+    - gcp.devtube.store
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: managed-cert-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: devtube-address
+    networking.gke.io/managed-certificates: managed-cert
+    kubernetes.io/ingress.class: "gce"  # Updated annotation
+spec:
+  defaultBackend:
+    service:
+      name: api-gateway-service
+      port:
+        number: 80
