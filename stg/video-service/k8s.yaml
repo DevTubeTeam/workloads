@@ -13,7 +13,7 @@ spec:
         app.kubernetes.io/name: video-service
     spec:
       containers:
-      - image: public.ecr.aws/s0p6q3j7/video-service:v1.0.12-960656d
+      - image: public.ecr.aws/s0p6q3j7/video-service:v1.0.13-742bf38
         imagePullPolicy: Always
         name: video-service
         ports:
