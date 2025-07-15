@@ -36,12 +36,6 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         role-session-name: GitHubActions-EKS-Deploy
 
-    # Install kubectl
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
-
     # Update kubeconfig for EKS
     - name: Update kubeconfig
       run: |
