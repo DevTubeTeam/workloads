@@ -44,3 +44,13 @@ resource "aws_eks_cluster" "eks" {
 
   depends_on = [aws_iam_role_policy_attachment.eks]
 }
+
+# EKS access entry for GitHub Actions
+resource "aws_eks_access_entry" "github_actions" {
+  cluster_name      = aws_eks_cluster.eks.name
+  principal_arn     = aws_iam_role.github_actions.arn
+  kubernetes_groups = ["system:masters"]
+  type              = "STANDARD"
+
+  depends_on = [aws_eks_cluster.eks]
+}
