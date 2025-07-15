@@ -1,0 +1,78 @@
+name: Deploy to EKS
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+    branches:
+      - main
+    types: [closed]
+
+env:
+  AWS_REGION: ap-southeast-1
+  EKS_CLUSTER_NAME: prod-devtube
+
+jobs:
+  setup-build-publish-deploy:
+    if: ${{ github.event.pull_request.merged }}
+    name: Deploy to EKS
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Configure AWS credentials
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-session-name: GitHubActions-EKS-Deploy
+
+    # Install kubectl
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    # Update kubeconfig for EKS
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+        kubectl config current-context
+
+    # Check for changes in k8s.yaml files and deploy the corresponding service dynamically
+    - name: Check modified files and deploy
+      run: |
+        # Get the list of modified k8s.yaml files in the pull request
+        changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.merge_commit_sha }})
+        echo "Changed files:"
+        echo "$changed_files"
+        # Loop through each modified file
+        no_deploy=true
+        for file in $changed_files; do
+          # Check if the file path matches the pattern "prod/{service}/k8s.yaml"
+          if [[ $file == prod/*/k8s.yaml ]]; then
+            # Extract the service name (e.g., api-gateway from prod/api-gateway/k8s.yaml)
+            service_name=$(echo $file | cut -d '/' -f 2)
+            echo "Detected change in service: $service_name"
+
+            # Apply the Kubernetes configuration for the service
+            kubectl apply -f $file
+
+            # Rollout status for the specific service
+            kubectl rollout status deployment/${service_name}-deployment
+            no_deploy=false
+          fi
+        done
+
+        if $no_deploy; then
+          echo "No k8s.yaml changes detected. Nothing deployed."
+        fi 
